@@ -43,7 +43,7 @@ namespace MKT_POLOSYS_API.Providers
 
                 //Connection Close
                 command.Connection.Close();
-
+                Console.WriteLine("test");
             }
 
             return mMktPoloQuestionLabels;
