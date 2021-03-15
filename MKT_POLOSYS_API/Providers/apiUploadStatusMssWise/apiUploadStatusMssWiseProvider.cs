@@ -19,7 +19,7 @@ namespace MKT_POLOSYS_API.Providers.apiUploadStatusWise
             using (SqlConnection connection = new SqlConnection(connectionString))
             {
                 //Declare COnnection                
-                var querySstring = "spMKT_POLO_APIUPDATEDATA_TO_MSSWISE";
+                var querySstring = "spMKT_POLO_APIUPDATEDATA_FROM_MSSWISE";
                 SqlCommand command = new SqlCommand(querySstring, connection);
                 command.CommandType = System.Data.CommandType.StoredProcedure;
 
@@ -34,8 +34,8 @@ namespace MKT_POLOSYS_API.Providers.apiUploadStatusWise
                 while (rd.Read())
                 {
                     ProcessResultModel data = new ProcessResultModel();
-                    data.message = rd[0].ToString();
-                    data.codeMessage = rd[1].ToString();
+                    data.codeMessage = rd[0].ToString();
+                    data.message = rd[1].ToString();                    
                     data.errorMessage = rd[2].ToString();
                     procUpdStatWIse.Add(data);
                 }
