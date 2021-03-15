@@ -24,8 +24,8 @@ namespace MKT_POLOSYS_API.Providers
             using (SqlConnection connection = new SqlConnection(connectionString))
             {
                 // Declare Cnnection                
-                var querySstring = "spMKT_POLO_GETDUKCAPILQUEUE";
-                SqlCommand command = new SqlCommand(querySstring, connection);
+                string sproc = "spMKT_POLO_GETDUKCAPILQUEUE";
+                SqlCommand command = new SqlCommand(sproc, connection);
                 command.CommandType = CommandType.StoredProcedure;
 
                 // Define Query Parameter
@@ -36,38 +36,72 @@ namespace MKT_POLOSYS_API.Providers
                 command.Connection.Open();
 
                 List<Dictionary<string, object>> queue = new List<Dictionary<string, object>>();
-                // Proses Sp
                 SqlDataReader rd = command.ExecuteReader();
                 while(rd.Read())
                 {
                     queue.Add(Enumerable.Range(0, rd.FieldCount).ToDictionary(rd.GetName, rd.GetValue));
                 }
 
-                queue.ForEach(consumeDukcapil);
+                foreach (Dictionary<string, object> q in queue)
+                {
+                    var result = await consumeDukcapil(q);
+
+                    sproc = "spMKT_POLO_UPDATEDUKCAPILRESULT";
+                    command = new SqlCommand(sproc, connection);
+                    command.CommandType = CommandType.StoredProcedure;
+
+                    // Define Query Parameter
+                    command.Parameters.AddWithValue("@sourceData", sourceData);
+                    command.Parameters.AddWithValue("@queueUID", queueUID);
+
+                    // Open Connection
+                    command.Connection.Open();
+                }
 
                 //Connection Close
                 command.Connection.Close();
             }
         }
 
-        private static async void consumeDukcapil(Dictionary<string, object> data)
+        private static async Task<Dictionary<string, object>> consumeDukcapil(Dictionary<string, object> data)
         {
-            HttpClient client = new HttpClient();
+            #region ignore cert validation
+            var clientHandler = new HttpClientHandler();
+            clientHandler.ServerCertificateCustomValidationCallback += (sender, certificate, chain, errors) =>
+            {
+                return true;
+            };
+            #endregion
+
+            #region prepare request body
+            Dictionary<string, object> body = new Dictionary<string, object>();
+            body.Add("NIK", data["NIK"]);
+            body.Add("NAMA_LGKP", data["NAMA_LGKP"]);
+            body.Add("TGL_LHR", data["TGL_LHR"]);
+            body.Add("TMPT_LHR", data["TMPT_LHR"]);
+            body.Add("USER_NAME", "MarketingPool");
+            body.Add("EMP_NAME", "MarketingPool");
+            body.Add("OFFICE_CODE", "0011");
+            body.Add("OFFICE_NAME", "Kantor Pusat");
+            body.Add("REGION", "7");
+            body.Add("CUST_NO", "MarketingPool");
+            body.Add("APP_NO", "MarketingPool");
+            body.Add("IP_USER", "10.0.9.66");
+            body.Add("SOURCE", "MarketingPool");
+            #endregion
+
+            HttpClient client = new HttpClient(clientHandler);
             client.BaseAddress = new Uri("https://10.0.9.227/api/dukcapil/");
 
-            string bodyJSON = JsonConvert.SerializeObject(data, Formatting.Indented);
+            string bodyJSON = JsonConvert.SerializeObject(body, Formatting.Indented);
             var content = new StringContent(bodyJSON, Encoding.UTF8, "application/json");
 
-            try
+            using (var response = await client.PostAsync("check_dukcapil/", content))
             {
-                var response = await client.PostAsync("check_dukcapil", content);
-                Console.WriteLine(response.StatusCode);
+                string apiResponse = await response.Content.ReadAsStringAsync();
+                var result = JsonConvert.DeserializeObject<Dictionary<string, object>>(apiResponse);
+                return result;
             }
-            catch (HttpRequestException e)
-            {
-                Console.WriteLine("[ERROR]" + e.Message);
-            }
-
         }
     }
 }
