@@ -1,26 +1,25 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using MKT_POLOSYS_API.DataAccess;
-using MKT_POLOSYS_API.Models; 
+using MKT_POLOSYS_API.Models;
 using System;
 using System.Collections.Generic;
-using System.Data.SqlClient; 
+using System.Data.SqlClient;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace MKT_POLOSYS_API.Providers
+namespace MKT_POLOSYS_API.Providers.apiUploadStatusWise
 {
-    public class MMktPoloQuestionLabelProvider 
+    public class apiUploadStatusMssWiseProvider
     {
         private WISE_STAGINGContext context = new WISE_STAGINGContext();
-      
-        public List<ProcessResultModel> getQuestionLabel(string parameterBody)
-        {            
+        public List<ProcessResultModel> procUpdStatWIse(string parameterBody)
+        {
             var connectionString = context.Database.GetDbConnection().ConnectionString;
-            List<ProcessResultModel> mMktPoloQuestionLabels = new List<ProcessResultModel>();
+            List<ProcessResultModel> procUpdStatWIse = new List<ProcessResultModel>();
             using (SqlConnection connection = new SqlConnection(connectionString))
             {
                 //Declare COnnection                
-                var querySstring = "spMKT_POLO_APIPROCESS";
+                var querySstring = "spMKT_POLO_APIUPDATEDATA_FROM_MSSWISE";
                 SqlCommand command = new SqlCommand(querySstring, connection);
                 command.CommandType = System.Data.CommandType.StoredProcedure;
 
@@ -35,18 +34,18 @@ namespace MKT_POLOSYS_API.Providers
                 while (rd.Read())
                 {
                     ProcessResultModel data = new ProcessResultModel();
-                    data.responseMessage = rd[0].ToString();
-                    data.responseCode = rd[1].ToString();
+                    data.responseCode = rd[0].ToString();
+                    data.responseMessage = rd[1].ToString();                    
                     data.errorMessage = rd[2].ToString();
-                    mMktPoloQuestionLabels.Add(data);
+                    procUpdStatWIse.Add(data);
                 }
 
                 //Connection Close
                 command.Connection.Close();
-                Console.WriteLine("test");
+
             }
 
-            return mMktPoloQuestionLabels;
+            return procUpdStatWIse;
 
         }
     }

@@ -7,8 +7,9 @@ namespace MKT_POLOSYS_API.Models
 {
     public class ProcessResultModel
     {
-        public string message { get; set; }
-        public string codeMessage { get; set; }
+        public string responseCode { get; set; }
+        public string responseMessage { get; set; }
+        
         public string errorMessage { get; set; }
     }
 }
