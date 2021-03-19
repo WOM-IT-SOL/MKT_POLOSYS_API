@@ -10,12 +10,11 @@ using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace MKT_POLOSYS_API.Providers
+namespace MKT_POLOSYS_API.Providers.PoloDukcapil
 {
     public class PoloDukcapilProvider
     {
         private static WISE_STAGINGContext context = new WISE_STAGINGContext();
-        private HttpClient client = new HttpClient();
 
         public static async Task getDukcapilQueue(string sourceData, string queueUID)
         {
@@ -44,9 +43,25 @@ namespace MKT_POLOSYS_API.Providers
                 {
                     queue.Add(Enumerable.Range(0, rd.FieldCount).ToDictionary(rd.GetName, rd.GetValue));
                 }
+
+                rd.Close();
+                command.Connection.Close();
                 #endregion
 
-                #region closing connection for later usage
+                #region fetch womf dukcapil api url
+                string dukcapilUrl = "";
+
+                string query = "SELECT PARAMETER_VALUE FROM CONFINS..MST_FILE_PARAMETER WHERE PARAMETER_NAME = 'URL_MKT_POLO_API_DUKCAPIL'";
+                command = new SqlCommand(query, connection);
+                command.CommandType = CommandType.Text;
+
+                command.Connection.Open();
+
+                rd = command.ExecuteReader();
+                rd.Read();
+
+                dukcapilUrl = rd.GetString(0);
+
                 rd.Close();
                 command.Connection.Close();
                 #endregion
@@ -55,7 +70,7 @@ namespace MKT_POLOSYS_API.Providers
                 foreach (Dictionary<string, object> q in queue)
                 {
                     //consuming womf dukcapil API
-                    var result = await consumeDukcapil(q);
+                    var result = await consumeDukcapil(q, dukcapilUrl);
 
                     //prepare connection for update dukcapil result
                     sproc = "spMKT_POLO_UPDATEDUKCAPILRESULT";
@@ -83,7 +98,7 @@ namespace MKT_POLOSYS_API.Providers
             }
         }
 
-        private static async Task<Dictionary<string, object>> consumeDukcapil(Dictionary<string, object> data)
+        private static async Task<Dictionary<string, object>> consumeDukcapil(Dictionary<string, object> data, string dukcapilUrl)
         {
             #region ignore ssl cert validation
             var clientHandler = new HttpClientHandler();
@@ -112,12 +127,11 @@ namespace MKT_POLOSYS_API.Providers
 
             #region consume womf dukcapil API and return response
             HttpClient client = new HttpClient(clientHandler);
-            client.BaseAddress = new Uri("https://10.0.9.227/api/dukcapil/");
 
             string bodyJSON = JsonConvert.SerializeObject(body, Formatting.Indented);
             var content = new StringContent(bodyJSON, Encoding.UTF8, "application/json");
 
-            using (var response = await client.PostAsync("check_dukcapil/", content))
+            using (var response = await client.PostAsync(new Uri(dukcapilUrl), content))
             {
                 string apiResponse = await response.Content.ReadAsStringAsync();
                 var result = JsonConvert.DeserializeObject<Dictionary<string, object>>(apiResponse);
