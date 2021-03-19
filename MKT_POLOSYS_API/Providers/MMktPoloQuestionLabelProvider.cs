@@ -35,8 +35,8 @@ namespace MKT_POLOSYS_API.Providers
                 while (rd.Read())
                 {
                     ProcessResultModel data = new ProcessResultModel();
-                    data.message = rd[0].ToString();
-                    data.codeMessage = rd[1].ToString();
+                    data.responseMessage = rd[0].ToString();
+                    data.responseCode = rd[1].ToString();
                     data.errorMessage = rd[2].ToString();
                     mMktPoloQuestionLabels.Add(data);
                 }

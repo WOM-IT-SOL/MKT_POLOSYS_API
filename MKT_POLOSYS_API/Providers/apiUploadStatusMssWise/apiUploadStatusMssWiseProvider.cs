@@ -34,8 +34,8 @@ namespace MKT_POLOSYS_API.Providers.apiUploadStatusWise
                 while (rd.Read())
                 {
                     ProcessResultModel data = new ProcessResultModel();
-                    data.codeMessage = rd[0].ToString();
-                    data.message = rd[1].ToString();                    
+                    data.responseCode = rd[0].ToString();
+                    data.responseMessage = rd[1].ToString();                    
                     data.errorMessage = rd[2].ToString();
                     procUpdStatWIse.Add(data);
                 }

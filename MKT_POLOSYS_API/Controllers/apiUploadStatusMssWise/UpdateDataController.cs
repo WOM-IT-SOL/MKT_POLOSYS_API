@@ -12,10 +12,10 @@ namespace MKT_POLOSYS_API.Controllers.apiUploadStatusMssWise
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class PoloSysMssWiseController : ControllerBase
+    public class UpdateDataController : ControllerBase
     {
         // GET: api/<apiUploadStatusMssWiseController>
-        [HttpGet("Update")]
+        [HttpGet("")]
         [Produces("application/json")]
 
         public async Task<IActionResult> procUpdateDataWise()
