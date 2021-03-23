@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using MKT_POLOSYS_API.DataAccess;
 using Newtonsoft.Json;
+using RestSharp;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -51,7 +52,7 @@ namespace MKT_POLOSYS_API.Providers.PoloDukcapil
                 #region fetch womf dukcapil api url
                 string dukcapilUrl = "";
 
-                string query = "SELECT PARAMETER_VALUE FROM CONFINS..MST_FILE_PARAMETER WHERE PARAMETER_NAME = 'URL_MKT_POLO_API_DUKCAPIL'";
+                string query = "SELECT PARAMETER_VALUE FROM M_MKT_POLO_PARAMETER WHERE PARAMETER_ID = 'URL_MKT_POLO_API_DUKCAPIL'";
                 command = new SqlCommand(query, connection);
                 command.CommandType = CommandType.Text;
 
@@ -100,14 +101,6 @@ namespace MKT_POLOSYS_API.Providers.PoloDukcapil
 
         private static async Task<Dictionary<string, object>> consumeDukcapil(Dictionary<string, object> data, string dukcapilUrl)
         {
-            #region ignore ssl cert validation
-            var clientHandler = new HttpClientHandler();
-            clientHandler.ServerCertificateCustomValidationCallback += (sender, certificate, chain, errors) =>
-            {
-                return true;
-            };
-            #endregion
-
             #region prepare request body
             Dictionary<string, object> body = new Dictionary<string, object>();
             body.Add("NIK", data["NIK"]);
@@ -126,17 +119,43 @@ namespace MKT_POLOSYS_API.Providers.PoloDukcapil
             #endregion
 
             #region consume womf dukcapil API and return response
-            HttpClient client = new HttpClient(clientHandler);
+            RestClient client = new RestClient(dukcapilUrl);
+            RestRequest request = new RestRequest();
+            request.Method = Method.POST;
+            request.AddHeader("Content-type", "application/json");
+            request.AddJsonBody(new {
+                NIK = data["NIK"],
+                NAMA_LGKP = data["NAMA_LGKP"],
+                TGL_LHR = data["TGL_LHR"],
+                TMPT_LHR = data["TMPT_LHR"],
+                USER_NAME = "MarketingPool",
+                EMP_NAME = "MarketingPool",
+                OFFICE_CODE = "0011",
+                OFFICE_NAME = "Kantor Pusat",
+                REGION = "7",
+                CUST_NO = "MarketingPool",
+                APP_NO = "MarketingPool",
+                IP_USER = "10.0.9.66",
+                SOURCE = "MarketingPool"
+            });
 
-            string bodyJSON = JsonConvert.SerializeObject(body, Formatting.Indented);
-            var content = new StringContent(bodyJSON, Encoding.UTF8, "application/json");
+            var response = client.Execute(request);
+            var content = response.Content;
 
-            using (var response = await client.PostAsync(new Uri(dukcapilUrl), content))
-            {
-                string apiResponse = await response.Content.ReadAsStringAsync();
-                var result = JsonConvert.DeserializeObject<Dictionary<string, object>>(apiResponse);
-                return result;
-            }
+            return body;
+
+
+            //HttpClient client = new HttpClient();
+
+            //string bodyJSON = JsonConvert.SerializeObject(body, Formatting.Indented);
+            //var content = new StringContent(bodyJSON, Encoding.UTF8, "application/json");
+
+            //using (var response = await client.PostAsync(new Uri(dukcapilUrl), content))
+            //{
+            //    string apiResponse = await response.Content.ReadAsStringAsync();
+            //    var result = JsonConvert.DeserializeObject<Dictionary<string, object>>(apiResponse);
+            //    return result;
+            //}
             #endregion
         }
     }
