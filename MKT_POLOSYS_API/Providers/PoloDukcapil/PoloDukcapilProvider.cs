@@ -25,7 +25,7 @@ namespace MKT_POLOSYS_API.Providers.PoloDukcapil
             {
                 #region prepare connection for fetching dukcapil queue
                 // Declare Connection                
-                string sproc = "spMKT_POLO_GETDUKCAPILQUEUE";
+                string sproc = "spMKT_POLO_DUKCAPIL_GETQUEUE";
                 SqlCommand command = new SqlCommand(sproc, connection);
                 command.CommandType = CommandType.StoredProcedure;
 
@@ -74,7 +74,7 @@ namespace MKT_POLOSYS_API.Providers.PoloDukcapil
                     var result = await consumeDukcapil(q, dukcapilUrl);
 
                     //prepare connection for update dukcapil result
-                    sproc = "spMKT_POLO_UPDATEDUKCAPILRESULT";
+                    sproc = "spMKT_POLO_DUKCAPIL_UPDATERESULT";
                     command = new SqlCommand(sproc, connection);
                     command.CommandType = CommandType.StoredProcedure;
 
@@ -99,7 +99,7 @@ namespace MKT_POLOSYS_API.Providers.PoloDukcapil
             }
         }
 
-        private static async Task<Dictionary<string, object>> consumeDukcapil(Dictionary<string, object> data, string dukcapilUrl)
+        private static async Task<Dictionary<string, string>> consumeDukcapil(Dictionary<string, object> data, string dukcapilUrl)
         {
             #region prepare request body
             Dictionary<string, object> body = new Dictionary<string, object>();
@@ -112,50 +112,24 @@ namespace MKT_POLOSYS_API.Providers.PoloDukcapil
             body.Add("OFFICE_CODE", "0011");
             body.Add("OFFICE_NAME", "Kantor Pusat");
             body.Add("REGION", "7");
-            body.Add("CUST_NO", "MarketingPool");
-            body.Add("APP_NO", "MarketingPool");
+            body.Add("CUST_NO", data["CUST_NO"]);
+            //body.Add("APP_NO", "");
             body.Add("IP_USER", "10.0.9.66");
             body.Add("SOURCE", "MarketingPool");
             #endregion
 
             #region consume womf dukcapil API and return response
-            RestClient client = new RestClient(dukcapilUrl);
-            RestRequest request = new RestRequest();
-            request.Method = Method.POST;
-            request.AddHeader("Content-type", "application/json");
-            request.AddJsonBody(new {
-                NIK = data["NIK"],
-                NAMA_LGKP = data["NAMA_LGKP"],
-                TGL_LHR = data["TGL_LHR"],
-                TMPT_LHR = data["TMPT_LHR"],
-                USER_NAME = "MarketingPool",
-                EMP_NAME = "MarketingPool",
-                OFFICE_CODE = "0011",
-                OFFICE_NAME = "Kantor Pusat",
-                REGION = "7",
-                CUST_NO = "MarketingPool",
-                APP_NO = "MarketingPool",
-                IP_USER = "10.0.9.66",
-                SOURCE = "MarketingPool"
-            });
+            HttpClient client = new HttpClient();
 
-            var response = client.Execute(request);
-            var content = response.Content;
+            string bodyJSON = JsonConvert.SerializeObject(body, Formatting.Indented);
+            var content = new StringContent(bodyJSON, Encoding.UTF8, "application/json");
 
-            return body;
-
-
-            //HttpClient client = new HttpClient();
-
-            //string bodyJSON = JsonConvert.SerializeObject(body, Formatting.Indented);
-            //var content = new StringContent(bodyJSON, Encoding.UTF8, "application/json");
-
-            //using (var response = await client.PostAsync(new Uri(dukcapilUrl), content))
-            //{
-            //    string apiResponse = await response.Content.ReadAsStringAsync();
-            //    var result = JsonConvert.DeserializeObject<Dictionary<string, object>>(apiResponse);
-            //    return result;
-            //}
+            using (var response = await client.PostAsync(new Uri(dukcapilUrl), content))
+            {
+                string apiResponse = await response.Content.ReadAsStringAsync();
+                var result = JsonConvert.DeserializeObject<Dictionary<string, string>>(apiResponse);
+                return result;
+            }
             #endregion
         }
     }
