@@ -23,7 +23,7 @@ namespace MKT_POLOSYS_API.Controllers.PoloDukcapil
         {
             await PoloDukcapilProvider.getDukcapilQueue(body["dataSource"], body["queueUID"]);
 
-            return Ok();
+            return Ok(new { });
         }
     }
 }
