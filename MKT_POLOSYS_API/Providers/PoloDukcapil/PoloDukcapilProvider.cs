@@ -70,8 +70,11 @@ namespace MKT_POLOSYS_API.Providers.PoloDukcapil
                 #region consume womf dukcapil API for each record
                 foreach (Dictionary<string, object> q in queue)
                 {
+                    DateTime reqDtm = DateTime.Now;
                     //consuming womf dukcapil API
                     var result = await consumeDukcapil(q, dukcapilUrl);
+
+                    DateTime resDtm = DateTime.Now;
 
                     //prepare connection for update dukcapil result
                     sproc = "spMKT_POLO_DUKCAPIL_UPDATERESULT";
@@ -81,10 +84,13 @@ namespace MKT_POLOSYS_API.Providers.PoloDukcapil
                     command.Connection.Open();
 
                     //define query parameter
+                    command.Parameters.Clear();
                     command.Parameters.AddWithValue("@T_MKT_POLO_DUKCAPIL_CHECK_QUEUE_ID", q["T_MKT_POLO_DUKCAPIL_CHECK_QUEUE_ID"]);
                     command.Parameters.AddWithValue("@responseCode", result["ResponseCode"]);
                     command.Parameters.AddWithValue("@responseMessage", result["ResponseMessage"]);
                     command.Parameters.AddWithValue("@statusDukcapil", result["FinalResult"]);
+                    command.Parameters.AddWithValue("@reqDtm", reqDtm.ToString("yyyy-MM-dd HH:mm:ss.fff"));
+                    command.Parameters.AddWithValue("@resDtm", resDtm.ToString("yyyy-MM-dd HH:mm:ss.fff"));
 
                     rd = command.ExecuteReader();
 
