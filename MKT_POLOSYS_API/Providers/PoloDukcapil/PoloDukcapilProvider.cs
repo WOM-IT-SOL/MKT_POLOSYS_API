@@ -17,7 +17,7 @@ namespace MKT_POLOSYS_API.Providers.PoloDukcapil
     {
         private static WISE_STAGINGContext context = new WISE_STAGINGContext();
 
-        public static async Task getDukcapilQueue(string sourceData, string queueUID)
+        public static async Task getDukcapilQueue(string sourceData, string queueUID, bool isJob)
         {
             var connectionString = context.Database.GetDbConnection().ConnectionString;
 
@@ -91,6 +91,7 @@ namespace MKT_POLOSYS_API.Providers.PoloDukcapil
                     command.Parameters.AddWithValue("@statusDukcapil", result["FinalResult"]);
                     command.Parameters.AddWithValue("@reqDtm", reqDtm.ToString("yyyy-MM-dd HH:mm:ss.fff"));
                     command.Parameters.AddWithValue("@resDtm", resDtm.ToString("yyyy-MM-dd HH:mm:ss.fff"));
+                    command.Parameters.Add("@isJob", SqlDbType.Bit).Value = isJob;
 
                     rd = command.ExecuteReader();
 
