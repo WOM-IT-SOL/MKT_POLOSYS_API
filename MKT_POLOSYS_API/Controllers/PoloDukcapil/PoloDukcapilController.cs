@@ -21,7 +21,7 @@ namespace MKT_POLOSYS_API.Controllers.PoloDukcapil
 
         public async Task<IActionResult> CheckDukcapil([FromBody]IDictionary<string, string> body)
         {
-            await PoloDukcapilProvider.getDukcapilQueue(body["dataSource"], body["queueUID"]);
+            await PoloDukcapilProvider.getDukcapilQueue(body["dataSource"], body["queueUID"], body.ContainsKey("isJob"));
 
             return Ok(new { });
         }
