@@ -20,7 +20,7 @@ namespace MKT_POLOSYS_API.Providers.DataCampaignCrmToPolo
             using (SqlConnection connection = new SqlConnection(connectionString))
             {
                 //Declare COnnection                
-                var querySstring = "spMKT_POLO_APIGENERATE_CRM_TOPOLO";
+                var querySstring = "spMKT_POLOCRM_MAINGATE";
                 SqlCommand command = new SqlCommand(querySstring, connection);
                 command.CommandType = System.Data.CommandType.StoredProcedure;
 
@@ -59,5 +59,52 @@ namespace MKT_POLOSYS_API.Providers.DataCampaignCrmToPolo
             return procGenDataCrm;
 
         }
+
+        public async Task UpdateCrmFlag(string parameterBody)
+        {
+            var connectionString = context.Database.GetDbConnection().ConnectionString;
+            List<ProcessResultDetailModel> procGenDataCrm = new List<ProcessResultDetailModel>();
+            List<ErrorDetailModel> ListDetailError = new List<ErrorDetailModel>();
+            using (SqlConnection connection = new SqlConnection(connectionString))
+            {
+                //Declare COnnection                
+                var querySstring = "spMKT_POLOCRM_APIGENERATECAMPAIGN";
+                SqlCommand command = new SqlCommand(querySstring, connection);
+                command.CommandType = System.Data.CommandType.StoredProcedure;
+
+                //Define Query Parameter
+                command.Parameters.AddWithValue("@parameterBody", parameterBody);
+
+                //open Connection
+                command.Connection.Open();
+
+                //PRoses Sp
+                SqlDataReader rd = command.ExecuteReader();
+                ProcessResultDetailModel data = new ProcessResultDetailModel();
+                while (rd.Read())
+                {
+                    data.responseCode = rd[0].ToString();
+                    data.responseMessage = rd[1].ToString();
+                    data.errorMessage = rd[2].ToString();
+                }
+                if (rd.NextResult())
+                {
+                    while (rd.Read())
+                    {
+                        ErrorDetailModel listError = new ErrorDetailModel();
+                        listError.taskId = rd[0].ToString();
+                        listError.errorDetail = rd[1].ToString();
+                        ListDetailError.Add(listError);
+                    }
+                    data.ListDetail = ListDetailError.ToList();
+                }
+                procGenDataCrm.Add(data);
+                //Connection Close
+                command.Connection.Close();
+
+            }
+        }
     }
+
+    
 }

@@ -8,9 +8,9 @@ using MKT_POLOSYS_API.Models;
 using MKT_POLOSYS_API.Providers.DataCampaignCrmToPolo;
 
  
-namespace MKT_POLOSYS_API.Controllers.DataCampaignCrmToPolo
+namespace MKT_POLOSYS_API.Controllers.UpdateDataCrm
 {
-    [Route("api/dataCampaignCrmToPolo")]
+    [Route("api/UpdateDataCrm")]
     [ApiController]
     public class apiGenerateCrmController : ControllerBase
     {
@@ -19,7 +19,7 @@ namespace MKT_POLOSYS_API.Controllers.DataCampaignCrmToPolo
         [Produces("application/json")]
 
         [HttpPost("")]
-        public async Task<IActionResult> postGenerateDataCrm()
+        public async Task<IActionResult> postUpdateDataCrm()
         {
             
             string parameterBody = "";
