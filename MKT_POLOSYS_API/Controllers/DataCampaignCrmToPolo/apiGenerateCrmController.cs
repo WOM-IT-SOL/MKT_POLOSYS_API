@@ -21,15 +21,16 @@ namespace MKT_POLOSYS_API.Controllers.DataCampaignCrmToPolo
         [HttpPost("")]
         public async Task<IActionResult> postGenerateDataCrm()
         {
-            
+
+            string guid = System.Guid.NewGuid().ToString().ToUpper();
             string parameterBody = "";
             using (StreamReader stream = new StreamReader(Request.Body))
             {
                 parameterBody = await stream.ReadToEndAsync();
             }
             apiGenerateCrmProvider procGenDataCrm = new apiGenerateCrmProvider();
-            var data = procGenDataCrm.procGenDataCrm(parameterBody);
-            procGenDataCrm.UpdateCrmFlag(parameterBody);
+            var done = "not done";
+            var data = procGenDataCrm.procGenDataCrm(parameterBody, out done, guid);
             if (data.Count == 0)
             {
                 return NotFound(data);

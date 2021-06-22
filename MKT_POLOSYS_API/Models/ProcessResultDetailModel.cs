@@ -9,7 +9,6 @@ namespace MKT_POLOSYS_API.Models
     {
         public string responseCode { get; set; }
         public string responseMessage { get; set; }
-        public string errorMessage { get; set; }
-        public List<ErrorDetailModel> ListDetail { get; set; }
+        public List<ErrorDetailModel> errorMessage { get; set; }
     }
 }

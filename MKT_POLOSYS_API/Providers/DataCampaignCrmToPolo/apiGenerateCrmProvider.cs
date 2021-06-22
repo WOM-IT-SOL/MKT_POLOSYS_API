@@ -11,100 +11,83 @@ namespace MKT_POLOSYS_API.Providers.DataCampaignCrmToPolo
 {
     public class apiGenerateCrmProvider
     {
-        private WISE_STAGINGContext context = new WISE_STAGINGContext();
-        public List<ProcessResultDetailModel> procGenDataCrm(string parameterBody)
+        private static WISE_STAGINGContext context = new WISE_STAGINGContext();
+        private static string connectionString = context.Database.GetDbConnection().ConnectionString;
+        SqlConnection connection = new SqlConnection(connectionString);
+        public List<ProcessResultDetailModel> procGenDataCrm(string parameterBody, out string done, string guid)
         {
             var connectionString = context.Database.GetDbConnection().ConnectionString;
             List<ProcessResultDetailModel> procGenDataCrm = new List<ProcessResultDetailModel>();
             List<ErrorDetailModel> ListDetailError = new List<ErrorDetailModel>();
-            using (SqlConnection connection = new SqlConnection(connectionString))
+            //Declare COnnection                
+            var querySstring = "spMKT_POLOCRM_APIGENERATECAMPAIGN_VAL";
+            SqlCommand command = new SqlCommand(querySstring, connection);
+            command.CommandType = System.Data.CommandType.StoredProcedure;
+
+            //Define Query Parameter
+            command.Parameters.AddWithValue("@parameterBody", parameterBody);
+            command.Parameters.AddWithValue("@guid", guid);
+
+            //open Connection
+            command.Connection.Open();
+
+            //PRoses Sp
+            SqlDataReader rd = command.ExecuteReader();
+            ProcessResultDetailModel data = new ProcessResultDetailModel();
+            while (rd.Read())
             {
-                //Declare COnnection                
-                var querySstring = "spMKT_POLOCRM_MAINGATE";
-                SqlCommand command = new SqlCommand(querySstring, connection);
-                command.CommandType = System.Data.CommandType.StoredProcedure;
-
-                //Define Query Parameter
-                command.Parameters.AddWithValue("@parameterBody", parameterBody);
-
-                //open Connection
-                command.Connection.Open();
-
-                //PRoses Sp
-                SqlDataReader rd = command.ExecuteReader();
-                ProcessResultDetailModel data = new ProcessResultDetailModel();
+                data.responseCode = rd[0].ToString();
+                data.responseMessage = rd[1].ToString();
+                //data.errorMessage = rd[2].ToString();
+            }
+            if (rd.NextResult())
+            {
                 while (rd.Read())
                 {
-                    data.responseCode = rd[0].ToString();
-                    data.responseMessage = rd[1].ToString();                    
-                    data.errorMessage = rd[2].ToString();
+                    ErrorDetailModel listError = new ErrorDetailModel();
+                    listError.taskId = rd[0].ToString();
+                    listError.errorDetail = rd[1].ToString();
+                    ListDetailError.Add(listError);
                 }
-                if (rd.NextResult())
-                {
-                    while (rd.Read())
-                    {
-                        ErrorDetailModel listError = new ErrorDetailModel();
-                        listError.taskId = rd[0].ToString();
-                        listError.errorDetail = rd[1].ToString();
-                        ListDetailError.Add(listError);
-                    }
-                    data.ListDetail = ListDetailError.ToList();
-                }
-                procGenDataCrm.Add(data);
-                //Connection Close
-                command.Connection.Close();
-
+                data.errorMessage = ListDetailError.ToList();
             }
+            procGenDataCrm.Add(data);
 
+            //Connection Close
+            command.Connection.Close();
+
+            done = "done";
+            if (done == "done")
+            {
+                Task.Run(() => UpdateCrmFlag(parameterBody, guid));
+            }
             return procGenDataCrm;
 
         }
 
-        public async Task UpdateCrmFlag(string parameterBody)
+        public async Task UpdateCrmFlag(string parameterBody, string guid)
         {
-            var connectionString = context.Database.GetDbConnection().ConnectionString;
             List<ProcessResultDetailModel> procGenDataCrm = new List<ProcessResultDetailModel>();
             List<ErrorDetailModel> ListDetailError = new List<ErrorDetailModel>();
-            using (SqlConnection connection = new SqlConnection(connectionString))
-            {
-                //Declare COnnection                
-                var querySstring = "spMKT_POLOCRM_APIGENERATECAMPAIGN";
-                SqlCommand command = new SqlCommand(querySstring, connection);
-                command.CommandType = System.Data.CommandType.StoredProcedure;
 
-                //Define Query Parameter
-                command.Parameters.AddWithValue("@parameterBody", parameterBody);
+            //Declare COnnection                
+            var querySstring = "spMKT_POLOCRM_MAINGATE";
+            SqlCommand command = new SqlCommand(querySstring, connection);
+            command.CommandType = System.Data.CommandType.StoredProcedure;
 
-                //open Connection
-                command.Connection.Open();
+            //Define Query Parameter
+            command.Parameters.AddWithValue("@guid", guid);
 
-                //PRoses Sp
-                SqlDataReader rd = command.ExecuteReader();
-                ProcessResultDetailModel data = new ProcessResultDetailModel();
-                while (rd.Read())
-                {
-                    data.responseCode = rd[0].ToString();
-                    data.responseMessage = rd[1].ToString();
-                    data.errorMessage = rd[2].ToString();
-                }
-                if (rd.NextResult())
-                {
-                    while (rd.Read())
-                    {
-                        ErrorDetailModel listError = new ErrorDetailModel();
-                        listError.taskId = rd[0].ToString();
-                        listError.errorDetail = rd[1].ToString();
-                        ListDetailError.Add(listError);
-                    }
-                    data.ListDetail = ListDetailError.ToList();
-                }
-                procGenDataCrm.Add(data);
-                //Connection Close
-                command.Connection.Close();
+            //open Connection
+            command.Connection.Open();
 
-            }
+            //PRoses Sp
+            SqlDataReader rd = command.ExecuteReader();
+            //Connection Close
+            command.Connection.Close();
+
         }
     }
 
-    
+
 }

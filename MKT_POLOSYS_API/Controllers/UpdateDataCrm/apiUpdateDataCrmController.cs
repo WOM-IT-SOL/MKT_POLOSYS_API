@@ -28,8 +28,12 @@ namespace MKT_POLOSYS_API.Controllers.UpdateDataCrm
                 parameterBody = await stream.ReadToEndAsync();
             }
             apiGenerateCrmProvider procGenDataCrm = new apiGenerateCrmProvider();
-            var data = procGenDataCrm.procGenDataCrm(parameterBody);
-            procGenDataCrm.UpdateCrmFlag(parameterBody);
+            var done = "not done";
+            var data = procGenDataCrm.procGenDataCrm(parameterBody, out done,"");
+            //while(done == "done")
+            //{
+            //    procGenDataCrm.UpdateCrmFlag(parameterBody);
+            //}
             if (data.Count == 0)
             {
                 return NotFound(data);
