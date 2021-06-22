@@ -13,12 +13,8 @@ namespace MKT_POLOSYS_API.Providers.data_voidsla_crm_to_polo
     {
         private WISE_STAGINGContext context = new WISE_STAGINGContext();
 
-        public async  Task procDataVoidSlaMain(string parameterBody)
-        {
-            var dataVal =  procDataVoidSla(parameterBody);
-           
-        }
-        public List<ProcessResultDetailModel> procDataVoidSla(string parameterBody)
+        
+        public List<ProcessResultDetailModel> procDataVoidSla(string guid,string parameterBody)
         {
             var connectionString = context.Database.GetDbConnection().ConnectionString;
             List<ProcessResultDetailModel> procGenDataCrm = new List<ProcessResultDetailModel>();
@@ -32,6 +28,7 @@ namespace MKT_POLOSYS_API.Providers.data_voidsla_crm_to_polo
 
                 //Define Query Parameter
                 command.Parameters.AddWithValue("@parameterBody", parameterBody);
+                command.Parameters.AddWithValue("@guid", guid);
 
                 //open Connection
                 command.Connection.Open();
@@ -69,5 +66,35 @@ namespace MKT_POLOSYS_API.Providers.data_voidsla_crm_to_polo
             return procGenDataCrm;
 
         }
+
+        public async Task UpdateVoidFlag(string guid)
+        {
+            var connectionString = context.Database.GetDbConnection().ConnectionString;
+            List<ProcessResultDetailModel> procGenDataCrm = new List<ProcessResultDetailModel>();
+            List<ErrorDetailModel> ListDetailError = new List<ErrorDetailModel>();
+            using (SqlConnection connection = new SqlConnection(connectionString))
+            {
+                //Declare COnnection                
+                var querySstring = "spMKT_POLOCRM_MAINGATE";
+                SqlCommand command = new SqlCommand(querySstring, connection);
+                command.CommandType = System.Data.CommandType.StoredProcedure;
+
+                //Define Query Parameter
+                command.Parameters.AddWithValue("@guid", guid);
+                //command.Parameters.AddWithValue("", "23");
+
+                //open Connection
+                command.Connection.Open();
+
+                //PRoses Sp
+                SqlDataReader rd = command.ExecuteReader();
+                 
+                //Connection Close
+                command.Connection.Close();
+
+            }
+        }
+
+
     }
 }

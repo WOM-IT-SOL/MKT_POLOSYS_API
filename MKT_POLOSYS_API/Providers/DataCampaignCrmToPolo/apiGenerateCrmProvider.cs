@@ -85,7 +85,7 @@ namespace MKT_POLOSYS_API.Providers.DataCampaignCrmToPolo
                 {
                     data.responseCode = rd[0].ToString();
                     data.responseMessage = rd[1].ToString();
-                    data.errorMessage = rd[2].ToString();
+                    //data.errorMessage = rd[2].ToString();
                 }
                 if (rd.NextResult())
                 {
@@ -93,10 +93,10 @@ namespace MKT_POLOSYS_API.Providers.DataCampaignCrmToPolo
                     {
                         ErrorDetailModel listError = new ErrorDetailModel();
                         listError.taskId = rd[0].ToString();
-                        listError.errorDetail = rd[1].ToString();
+                        listError.errDesc = rd[1].ToString();
                         ListDetailError.Add(listError);
                     }
-                    data.ListDetail = ListDetailError.ToList();
+                    data.errorMessage = ListDetailError.ToList();
                 }
                 procGenDataCrm.Add(data);
                 //Connection Close
