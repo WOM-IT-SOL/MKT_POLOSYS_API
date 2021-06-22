@@ -36,7 +36,8 @@ namespace MKT_POLOSYS_API.Providers.get_statusprospek_polo
                     getStatusProspeks.prospectStat = rd[0].ToString();
                     getStatusProspeks.responseCode = rd[1].ToString();
                     getStatusProspeks.responseMessage = rd[2].ToString();
- 
+                    getStatusProspeks.errorMessage = rd[3].ToString();
+
                 }
 
                 //Connection Close

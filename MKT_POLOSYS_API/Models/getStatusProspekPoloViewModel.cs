@@ -15,6 +15,7 @@ namespace MKT_POLOSYS_API.Models
         public string prospectStat { get; set; }
         public string responseCode { get; set; }
         public string responseMessage { get; set; }
+        public string errorMessage { get; set; }
 
     }
 }
