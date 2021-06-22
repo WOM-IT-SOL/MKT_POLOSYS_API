@@ -10,14 +10,15 @@ using MKT_POLOSYS_API.Providers.apiUploadStatusWise;
  
 namespace MKT_POLOSYS_API.Controllers.apiUploadStatusMssWise
 {
-    [Route("api/[controller]")]
+    [Route("api/GenerateCrm")]
     [ApiController]
     public class UpdateDataController : ControllerBase
     {
         // GET: api/<apiUploadStatusMssWiseController>
-        [HttpPost("")]
         [Produces("application/json")]
 
+
+        [HttpPost("")]
         public async Task<IActionResult> procUpdateDataWise()
         {
             
