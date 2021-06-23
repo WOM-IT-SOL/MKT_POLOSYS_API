@@ -14,55 +14,72 @@ namespace MKT_POLOSYS_API.Providers.data_voidsla_crm_to_polo
         private WISE_STAGINGContext context = new WISE_STAGINGContext();
 
         
-        public List<ProcessResultDetailModel> procDataVoidSla(string guid,string parameterBody)
+        public List<ProcessResultDetailModel> procDataVoidSla(string guid, out string done,string parameterBody)
         {
             var connectionString = context.Database.GetDbConnection().ConnectionString;
             List<ProcessResultDetailModel> procGenDataCrm = new List<ProcessResultDetailModel>();
             List<ErrorDetailModel> ListDetailError = new List<ErrorDetailModel>(); 
             using (SqlConnection connection = new SqlConnection(connectionString))
             {
-                //Declare COnnection                
-                var querySstring = "SPMKT_POLOCRM_UPDATE_VOIDSLA_VAL";
-                SqlCommand command = new SqlCommand(querySstring, connection);
-                command.CommandType = System.Data.CommandType.StoredProcedure;
-
-                //Define Query Parameter
-                command.Parameters.AddWithValue("@parameterBody", parameterBody);
-                command.Parameters.AddWithValue("@guid", guid);
-
-                //open Connection
-                command.Connection.Open();
-
-                //PRoses Sp
-                SqlDataReader rd = command.ExecuteReader();
-                ProcessResultDetailModel data = new ProcessResultDetailModel();
-                while (rd.Read())
+                
+                try
                 {
-                    data.responseCode = rd[0].ToString();
-                    data.responseMessage = rd[1].ToString();
-                    //data.errorMessage = rd[2].ToString();
-                }
-                if (rd.NextResult())
-                {
+                    //Declare COnnection                
+                    var querySstring = "SPMKT_POLOCRM_UPDATE_VOIDSLA_VAL";
+                    SqlCommand command = new SqlCommand(querySstring, connection);
+                    command.CommandType = System.Data.CommandType.StoredProcedure;
+
+                    //Define Query Parameter
+                    command.Parameters.AddWithValue("@parameterBody", parameterBody);
+                    command.Parameters.AddWithValue("@guid", guid);
+
+                    //open Connection
+                    command.Connection.Open();
+                    command.CommandTimeout=7200; //set timeout 2Jam (3600x2)
+                    //PRoses Sp
+                    Console.WriteLine("Execute StoreProcedure Validation Started..");
+                    SqlDataReader rd = command.ExecuteReader();
+                    ProcessResultDetailModel data = new ProcessResultDetailModel();
                     while (rd.Read())
                     {
-                         
-                        ErrorDetailModel listError = new ErrorDetailModel();
-                        listError.taskId = rd[0].ToString();
-                        listError.errDesc = rd[1].ToString();
-                        ListDetailError.Add(listError);
-                        
-                        
+                        data.responseCode = rd[0].ToString();
+                        data.responseMessage = rd[1].ToString();
+                        //data.errorMessage = rd[2].ToString();
                     }
-                    data.errorMessage = ListDetailError.ToList();
+                    if (rd.NextResult())
+                    {
+                        while (rd.Read())
+                        { 
+                            ErrorDetailModel listError = new ErrorDetailModel();
+                            listError.taskId = rd[0].ToString();
+                            listError.errDesc = rd[1].ToString();
+                            ListDetailError.Add(listError); 
+                        }
+                        data.errorMessage = ListDetailError.ToList();
 
-                } 
-                procGenDataCrm.Add(data);
-                //Connection Close
-                command.Connection.Close();
-
+                    }
+                    procGenDataCrm.Add(data);
+                    //Connection Close
+                    command.Connection.Close();
+                    Console.WriteLine("Execute StoreProcedure Validation Finished..");
+                    done = "done";
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine("Execute StoreProcedure Validation Error..");
+                    ProcessResultDetailModel data = new ProcessResultDetailModel();
+                    data.responseCode = "02";
+                    data.responseMessage = e.Message;
+                    done = "not done";
+                    procGenDataCrm.Add(data); 
+                }
+                
             }
-
+            
+            if (done == "done")
+            {
+                Task.Run(() => UpdateVoidFlag( guid));
+            }
             return procGenDataCrm;
 
         }

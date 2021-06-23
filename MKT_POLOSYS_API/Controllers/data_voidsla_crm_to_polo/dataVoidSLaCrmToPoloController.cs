@@ -24,7 +24,8 @@ namespace MKT_POLOSYS_API.Controllers.data_voidsla_crm_to_polo
                 parameterBody = await stream.ReadToEndAsync();
             }
             dataVoidSLaCrmToPoloProvider dataVoidSLaCrmToPolo = new dataVoidSLaCrmToPoloProvider();
-            var data = dataVoidSLaCrmToPolo.procDataVoidSla(guid,parameterBody);
+            var done = "not done";
+            var data = dataVoidSLaCrmToPolo.procDataVoidSla(guid, out done, parameterBody);
             //var task= Task.Run(() => dataVoidSLaCrmToPolo.UpdateVoidFlag(guid));
             //task.Wait();
 
