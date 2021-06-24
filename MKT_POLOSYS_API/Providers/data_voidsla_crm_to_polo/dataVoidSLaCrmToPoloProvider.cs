@@ -35,7 +35,7 @@ namespace MKT_POLOSYS_API.Providers.data_voidsla_crm_to_polo
 
                     //open Connection
                     command.Connection.Open();
-                    command.CommandTimeout=7200; //set timeout 2Jam (3600x2)
+                    command.CommandTimeout=3600; //set timeout 1Jam 
                     //PRoses Sp
                     Console.WriteLine("Execute StoreProcedure Validation Started..");
                     SqlDataReader rd = command.ExecuteReader();
@@ -66,24 +66,32 @@ namespace MKT_POLOSYS_API.Providers.data_voidsla_crm_to_polo
                 }
                 catch (Exception e)
                 {
+                    string errMsg = "";
+                    errMsg = e.Message;                
                     Console.WriteLine("Execute StoreProcedure Validation Error..");
                     ProcessResultDetailModel data = new ProcessResultDetailModel();
-                    data.responseCode = "02";
-                    data.responseMessage = e.Message;
+                    ErrorDetailModel err = new ErrorDetailModel();
+                    data.responseCode = "02"; 
+                    data.responseMessage = "System Error";
+                    err.taskId = "";
+                    err.errDesc = errMsg;
+                    ListDetailError.Add(err);
+                    data.errorMessage = ListDetailError.ToList();
+                    procGenDataCrm.Add(data);
                     done = "not done";
-                    procGenDataCrm.Add(data); 
                 }
                 
             }
-            
+            //done = "done";
             if (done == "done")
             {
-                Task.Run(() => UpdateVoidFlag( guid));
+                Task.Run(() => UpdateVoidFlag(guid));
             }
             return procGenDataCrm;
 
         }
-
+      
+   
         public async Task UpdateVoidFlag(string guid)
         {
             var connectionString = context.Database.GetDbConnection().ConnectionString;
