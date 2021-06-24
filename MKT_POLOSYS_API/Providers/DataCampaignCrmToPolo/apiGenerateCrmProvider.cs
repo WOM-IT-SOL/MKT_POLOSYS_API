@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 namespace MKT_POLOSYS_API.Providers.DataCampaignCrmToPolo
 {
     public class apiGenerateCrmProvider
-    {
+    {   
         private static WISE_STAGINGContext context = new WISE_STAGINGContext();
         private static string connectionString = context.Database.GetDbConnection().ConnectionString;
         SqlConnection connection = new SqlConnection(connectionString);

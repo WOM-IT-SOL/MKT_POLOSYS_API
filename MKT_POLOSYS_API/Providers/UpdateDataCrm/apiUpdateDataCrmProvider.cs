@@ -12,7 +12,7 @@ namespace MKT_POLOSYS_API.Providers.UpdateDataCrm
     public class apiUpdateDataCrmProvider
     {
         private WISE_STAGINGContext context = new WISE_STAGINGContext();
-        public List<ProcessResultModel> procUpdStatWIse(string parameterBody)
+        public List<ProcessResultModel> procUpdateCrmtoPolo(string parameterBody)
         {
             var connectionString = context.Database.GetDbConnection().ConnectionString;
             List<ProcessResultModel> procUpdStatWIse = new List<ProcessResultModel>();
