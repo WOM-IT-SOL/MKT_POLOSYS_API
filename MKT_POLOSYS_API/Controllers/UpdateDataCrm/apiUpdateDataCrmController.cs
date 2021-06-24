@@ -5,7 +5,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using MKT_POLOSYS_API.Models;
-using MKT_POLOSYS_API.Providers.DataCampaignCrmToPolo;
+using MKT_POLOSYS_API.Providers.UpdateDataCrm;
 
  
 namespace MKT_POLOSYS_API.Controllers.UpdateDataCrm
@@ -27,13 +27,8 @@ namespace MKT_POLOSYS_API.Controllers.UpdateDataCrm
             {
                 parameterBody = await stream.ReadToEndAsync();
             }
-            apiGenerateCrmProvider procGenDataCrm = new apiGenerateCrmProvider();
-            var done = "not done";
-            var data = procGenDataCrm.procGenDataCrm(parameterBody, out done,"");
-            //while(done == "done")
-            //{
-            //    procGenDataCrm.UpdateCrmFlag(parameterBody);
-            //}
+            apiUpdateDataCrmProvider procUpdDataCrm = new apiUpdateDataCrmProvider();
+            var data = procUpdDataCrm.procUpdateCrmtoPolo(parameterBody);
             if (data.Count == 0)
             {
                 return NotFound(data);

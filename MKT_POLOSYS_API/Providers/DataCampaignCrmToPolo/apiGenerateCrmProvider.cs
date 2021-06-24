@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 namespace MKT_POLOSYS_API.Providers.DataCampaignCrmToPolo
 {
     public class apiGenerateCrmProvider
-    {
+    {   
         private static WISE_STAGINGContext context = new WISE_STAGINGContext();
         private static string connectionString = context.Database.GetDbConnection().ConnectionString;
         SqlConnection connection = new SqlConnection(connectionString);
@@ -31,25 +31,23 @@ namespace MKT_POLOSYS_API.Providers.DataCampaignCrmToPolo
             //open Connection
             command.Connection.Open();
 
-                //PRoses Sp
-                SqlDataReader rd = command.ExecuteReader();
-                ProcessResultDetailModel data = new ProcessResultDetailModel();
+            //PRoses Sp
+            SqlDataReader rd = command.ExecuteReader();
+            ProcessResultDetailModel data = new ProcessResultDetailModel();
+            while (rd.Read())
+            {
+                data.responseCode = rd[0].ToString();
+                data.responseMessage = rd[1].ToString();
+                //data.errorMessage = rd[2].ToString();
+            }
+            if (rd.NextResult())
+            {
                 while (rd.Read())
                 {
-                    data.responseCode = rd[0].ToString();
-                    data.responseMessage = rd[1].ToString();                    
-                    //data.errorMessage = rd[2].ToString();
-                }
-                if (rd.NextResult())
-                {
-                    while (rd.Read())
-                    {
-                        ErrorDetailModel listError = new ErrorDetailModel();
-                        listError.taskId = rd[0].ToString();
-                        listError.errDesc = rd[1].ToString();
-                        ListDetailError.Add(listError);
-                    }
-                    data.errorMessage = ListDetailError.ToList();
+                    ErrorDetailModel listError = new ErrorDetailModel();
+                    listError.taskId = rd[0].ToString();
+                    listError.errDesc = rd[1].ToString();
+                    ListDetailError.Add(listError);
                 }
                 procGenDataCrm.Add(data);
                 //Connection Close
