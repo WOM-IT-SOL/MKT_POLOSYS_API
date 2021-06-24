@@ -46,7 +46,7 @@ namespace MKT_POLOSYS_API.Providers.DataCampaignCrmToPolo
                 {
                     ErrorDetailModel listError = new ErrorDetailModel();
                     listError.taskId = rd[0].ToString();
-                    listError.errorDetail = rd[1].ToString();
+                    listError.errDesc = rd[1].ToString();
                     ListDetailError.Add(listError);
                 }
                 data.errorMessage = ListDetailError.ToList();
