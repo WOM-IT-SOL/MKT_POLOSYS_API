@@ -10,7 +10,7 @@ using MKT_POLOSYS_API.Providers.DataCampaignCrmToPolo;
  
 namespace MKT_POLOSYS_API.Controllers.DataCampaignCrmToPolo
 {
-    [Route("api/dataCampaignCrmToPolo")]
+    [Route("api/apiGenerateCrm")]
     [ApiController]
     public class apiGenerateCrmController : ControllerBase
     {
@@ -18,7 +18,7 @@ namespace MKT_POLOSYS_API.Controllers.DataCampaignCrmToPolo
         
         [Produces("application/json")]
 
-        [HttpPost("")]
+        [HttpPost("procGenerateDataCrm")]
         public async Task<IActionResult> postGenerateDataCrm()
         {
 
