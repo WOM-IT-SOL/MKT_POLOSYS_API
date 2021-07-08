@@ -10,7 +10,7 @@ using MKT_POLOSYS_API.Providers.DataCampaignCrmToPolo;
  
 namespace MKT_POLOSYS_API.Controllers.DataCampaignCrmToPolo
 {
-    [Route("api/apiGenerateCrm")]
+    [Route ("api/dataCampaignCrmToPolo")]
     [ApiController]
     public class apiGenerateCrmController : ControllerBase
     {
