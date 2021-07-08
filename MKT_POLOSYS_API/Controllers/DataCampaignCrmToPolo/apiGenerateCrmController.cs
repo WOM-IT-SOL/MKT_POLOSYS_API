@@ -15,7 +15,6 @@ namespace MKT_POLOSYS_API.Controllers.DataCampaignCrmToPolo
     public class apiGenerateCrmController : ControllerBase
     {
         // GET: api/<apiUploadStatusMssWiseController>
-        
         [Produces("application/json")]
 
         [HttpPost("")]
