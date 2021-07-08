@@ -18,7 +18,7 @@ namespace MKT_POLOSYS_API.Controllers.DataCampaignCrmToPolo
         
         [Produces("application/json")]
 
-        [HttpPost("procGenerateDataCrm")]
+        [HttpPost("")]
         public async Task<IActionResult> postGenerateDataCrm()
         {
 
