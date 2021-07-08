@@ -10,7 +10,7 @@ using MKT_POLOSYS_API.Providers.apiUploadStatusWise;
  
 namespace MKT_POLOSYS_API.Controllers.apiUploadStatusMssWise
 {
-    [Route("api/GenerateCrm")]
+    [Route("api/[controller]")]
     [ApiController]
     public class UpdateDataController : ControllerBase
     {
