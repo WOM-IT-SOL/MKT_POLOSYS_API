@@ -12,6 +12,7 @@ namespace MKT_POLOSYS_API.Controllers.UpdateDataCrm
 {
     [Route("api/UpdateDataCrm")]
     [ApiController]
+
     public class apiGenerateCrmController : ControllerBase
     {
         // GET: api/<apiUploadStatusMssWiseController>
